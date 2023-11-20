@@ -1,4 +1,4 @@
-data = load('map2023.dat');
+data = dlmread("output_file.dat");
 
 % Assuming binaryData contains your binary data (85 rows x 700 columns)
 
@@ -9,6 +9,6 @@ imshow(data, 'InitialMagnification', 'fit');
 colormap(flipud(gray));
 
 % Set title and axis labels (optional)
-title('Binary Black and White Map');
+title('Binary Map');
 xlabel('Columns');
 ylabel('Rows');
