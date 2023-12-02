@@ -1,4 +1,8 @@
-function [currentX, currentY, currentTheta] = FunctionOdometryModel(currentX, currentY, currentTheta, prevX, prevY, prevTheta)
+function [currentX, currentY, currentTheta] = FunctionOdometryModel(data, prevX, prevY, prevTheta)
+
+    currentX = data(1, 2);
+    currentY = data(1, 3);
+    currentTheta = data(1, 4);
 
     % alpha
     alpha = 1*10^-6;
