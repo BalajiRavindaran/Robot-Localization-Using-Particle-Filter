@@ -11,11 +11,16 @@ numParticles = 500;
 % Storing X, Y, theta and Weight of particles
 particles = zeros(numParticles, 4);
 
+x_range = 72:85;
+y_range = 445:465;
+theta_range_1 = -pi:(pi + 0.1745); 
+theta_range_2 = (pi - 0.1745):pi;
+
 for i = 1:numParticles
-    particles(i, 1) = rand() * 700;
-    particles(i, 2) = rand() * 85;
-    particles(i, 3) = rand() * 2 * pi - pi;
-    particles(i, 4) = 1/ numParticles;
+    particles(i, 1) = datasample(x_range, 1);
+    particles(i, 2) = datasample(y_range, 1);
+    particles(i, 3) = datasample([theta_range_1, theta_range_2], 1);
+    particles(i, 4) = 1;
 
 end
 
@@ -40,7 +45,7 @@ for i = 1:size(robotData, 1)
         %robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
 
         for j = i:numParticles
-            particles(j, 4) = FunctionSensorModel(particles(j, 1:3), mapData, robotData(i, 8:187));
+            particles(j, 4) = FunctionSensorModel(particles(j, 1:3), mapData, robotData(i, 5:187));
             [particles(j, 1), particles(j, 2), particles(j, 3)] = FunctionOdometryModel(robotData(i, :), particles(j, 1), particles(j, 2), particles(j, 3));
         end
     end
