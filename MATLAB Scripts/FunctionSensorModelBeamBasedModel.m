@@ -1,4 +1,4 @@
-function [weight] = FunctionSensorModel(robotData, mapData, lazerScans)
+function [weight] = FunctionSensorModelBeamBasedModel(robotData, mapData, lazerScans)
 
     occupied_grid = mapData;
 
@@ -17,7 +17,6 @@ function [weight] = FunctionSensorModel(robotData, mapData, lazerScans)
     
     xOccupied = 0;
     yOccupied = 0;
-
 
     lazerHit = false;
     while ~lazerHit
@@ -51,7 +50,7 @@ function [weight] = FunctionSensorModel(robotData, mapData, lazerScans)
 
     probProdcuts = [];
 
-    for i = 4:size(lazerScans, 2)
+    for i = 1:size(lazerScans, 2)
         pHit = (2/(erf((8000-zExp)/(sqrt(2)*5))-erf((-zExp)/(sqrt(2)*5))))*(1/(sqrt(2*pi*(5^2))))*exp((-1/2)*(((lazerScans(1, i)-zExp)^2)/(5^2)));
         
         if (lazerScans(1, i)>zExp)
@@ -68,7 +67,7 @@ function [weight] = FunctionSensorModel(robotData, mapData, lazerScans)
 
         pRand = 1/8000;
 
-        pProduct = (0.9*pHit) + (0.09*pShort) + (0.01*pMax) + (0.001*pRand);
+        pProduct =(0.9*pHit) + (0.09*pShort) + (0.01*pMax) + (0.001*pRand);
         probProdcuts = [probProdcuts; pProduct];
     end
     

@@ -1,6 +1,7 @@
-function result = FunctionParticleFilter(robotDataFileLocation, mapDataFileLocation)
+% Needs to be adjusted, To use only the odometry input to update the
+% particles pose and not the particles pose itself
 
-%robotPose = [];
+function result = FunctionParticleFilter(robotDataFileLocation, mapDataFileLocation)
 
 robotData = dlmread(robotDataFileLocation);
 mapData = dlmread(mapDataFileLocation);
@@ -24,31 +25,63 @@ for i = 1:numParticles
 
 end
 
-%currentRobotX = 445;
-%currentRobotY = 72;
-%currentRobotTheta = 0;
+robotPose = [];
+
+currentRobotX = 445;
+currentRobotY = 72;
+currentRobotTheta = 0;
+
+% Initialize a scatter plot with the first set of data points
+figure;
+scatter(particles(:, 1), particles(:, 2)); % Plot x vs y
+title('Scatter Plot');
+xlabel('X');
+ylabel('Y');
 
 for i = 1:size(robotData, 1)
     if robotData(i, 1) == 0
-        % Updated Robot Position using the odometry model
-        %[currentRobotX, currentRobotY, currentRobotTheta] = FunctionOdometryModel(data(i, :), currentRobotX, currentRobotY, currentRobotTheta);
-        %robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
+        %Updated Robot Position using the odometry model
+        [currentRobotX, currentRobotY, currentRobotTheta] = FunctionOdometryModel(robotData(i, :), currentRobotX, currentRobotY, currentRobotTheta);
+        robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
 
         % Propagating the particles using the odometry model
-        for j = i:numParticles
-            [particles(j, 1), particles(j, 2), particles(j, 3)] = FunctionOdometryModel(robotData(i, :), particles(j, 1), particles(j, 2), particles(j, 3));
+        for j = 1:numParticles
+            particles(j, 1) = particles(j, 1) + currentRobotX;
+            particles(j, 2) = particles(j, 2) + currentRobotY;
+            particles(j, 3) = particles(j, 3) + currentRobotTheta;
         end
 
     elseif robotData(i, 1) == 1
-        % Updated Robot Position using the odometry model
-        %[currentRobotX, currentRobotY, currentRobotTheta] = FunctionOdometryModel(data(i, :), currentRobotX, currentRobotY, currentRobotTheta);
-        %robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
 
-        for j = i:numParticles
-            particles(j, 4) = FunctionSensorModel(particles(j, 1:3), mapData, robotData(i, 5:187));
-            [particles(j, 1), particles(j, 2), particles(j, 3)] = FunctionOdometryModel(robotData(i, :), particles(j, 1), particles(j, 2), particles(j, 3));
+        for j = 1:numParticles
+            particles(j, 4) = FunctionSensorModelBeamBasedModel(particles(j, 1:3), mapData, robotData(i, 8:187));
+        end
+
+        % Updated Robot Position using the odometry model
+
+        [currentRobotX, currentRobotY, currentRobotTheta] = FunctionOdometryModel(robotData(i, :), currentRobotX, currentRobotY, currentRobotTheta);
+        robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
+
+        % Propagating the particles using the odometry model
+        for j = 1:numParticles
+            particles(j, 1) = particles(j, 1) + currentRobotX;
+            particles(j, 2) = particles(j, 2) + currentRobotY;
+            particles(j, 3) = particles(j, 3) + currentRobotTheta;
         end
     end
+
+    x = particles(:, 1);
+    y = particles(:, 2);
+    
+    % Update the scatter plot with new x, y coordinates
+    scatter(x, y, 'r', 'filled'); % Plot the current point in red
+    
+    % Update title to show the iteration number
+    title(['Scatter Plot - Iteration ', num2str(i)]);
+    
+    % Add a pause to observe the updated scatter plot (optional)
+    pause(0.1); % Adjust the duration of the pause as needed
+    
 end
 
 result = particles;
