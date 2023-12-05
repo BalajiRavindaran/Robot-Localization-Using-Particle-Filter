@@ -1,13 +1,10 @@
-% Needs to be adjusted, To use only the odometry input to update the
-% particles pose and not the particles pose itself
-
 function result = FunctionParticleFilter(robotDataFileLocation, mapDataFileLocation)
 
 robotData = dlmread(robotDataFileLocation);
 mapData = dlmread(mapDataFileLocation);
 
 % No. of Particles
-numParticles = 500;
+numParticles = 100;
 
 % Storing X, Y, theta and Weight of particles
 particles = zeros(numParticles, 4);
@@ -22,7 +19,6 @@ for i = 1:numParticles
     particles(i, 2) = datasample(y_range, 1);
     particles(i, 3) = datasample([theta_range_1, theta_range_2], 1);
     particles(i, 4) = 1;
-
 end
 
 robotPose = [];
@@ -32,11 +28,11 @@ currentRobotY = 72;
 currentRobotTheta = 0;
 
 % Initialize a scatter plot with the first set of data points
-figure;
-scatter(particles(:, 1), particles(:, 2)); % Plot x vs y
-title('Scatter Plot');
-xlabel('X');
-ylabel('Y');
+%figure;
+%scatter(particles(:, 1), particles(:, 2)); % Plot x vs y
+%title('Scatter Plot');
+%xlabel('X');
+%ylabel('Y');
 
 for i = 1:size(robotData, 1)
     if robotData(i, 1) == 0
@@ -53,14 +49,14 @@ for i = 1:size(robotData, 1)
 
     elseif robotData(i, 1) == 1
 
-        for j = 1:numParticles
-            particles(j, 4) = FunctionSensorModelBeamBasedModel(particles(j, 1:3), mapData, robotData(i, 8:187));
-        end
-
         % Updated Robot Position using the odometry model
 
         [currentRobotX, currentRobotY, currentRobotTheta] = FunctionOdometryModel(robotData(i, :), currentRobotX, currentRobotY, currentRobotTheta);
         robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
+
+        for j = 1:numParticles
+            particles(j, 4) = FunctionSensorModelBeamBasedModel(robotData(i, 5:7), mapData, robotData(i, 8:187));
+        end
 
         % Propagating the particles using the odometry model
         for j = 1:numParticles
@@ -68,21 +64,24 @@ for i = 1:size(robotData, 1)
             particles(j, 2) = particles(j, 2) + currentRobotY;
             particles(j, 3) = particles(j, 3) + currentRobotTheta;
         end
-    end
 
-    x = particles(:, 1);
-    y = particles(:, 2);
+    end
+    
+    particles = FunctionLowVarianceResample(particles);
+    %x = particles(:, 1);
+    %y = particles(:, 2);
     
     % Update the scatter plot with new x, y coordinates
-    scatter(x, y, 'r', 'filled'); % Plot the current point in red
+    %scatter(x, y, 'r', 'filled'); % Plot the current point in red
     
     % Update title to show the iteration number
-    title(['Scatter Plot - Iteration ', num2str(i)]);
-    
-    % Add a pause to observe the updated scatter plot (optional)
-    pause(0.1); % Adjust the duration of the pause as needed
+    %title(['Scatter Plot - Iteration ', num2str(i)]);
+
+    %pause(0.1);
     
 end
 
 result = particles;
+
+end
 

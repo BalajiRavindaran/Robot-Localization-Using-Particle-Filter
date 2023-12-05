@@ -6,7 +6,7 @@ function [currentX, currentY, currentTheta] = FunctionOdometryModel(data, prevX,
 
     % alpha
     alpha = 1*10^-6;
-    
+
     % Delta Translation
     delTrans = sqrt((currentX - prevX)^2 + (currentY - prevY)^2);
 
@@ -31,6 +31,9 @@ function [currentX, currentY, currentTheta] = FunctionOdometryModel(data, prevX,
         delRot2 = prevTheta - currentTheta;
     else
         % Delta Rotation 1
+        if currentX > 0
+            
+        end
         delRot1 = atan2(currentY - prevY, currentX - prevX) - prevTheta;
 
         % Delta Rotation 2
