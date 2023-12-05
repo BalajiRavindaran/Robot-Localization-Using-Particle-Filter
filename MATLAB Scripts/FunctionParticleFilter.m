@@ -1,10 +1,11 @@
-function result = FunctionParticleFilter(robotDataFileLocation, mapDataFileLocation)
+function result = FunctionParticleFilter(robotDataFileLocation, mapDataFileLocation, likelihoodMapFileLocation)
 
 robotData = dlmread(robotDataFileLocation);
 mapData = dlmread(mapDataFileLocation);
+likelihoodMapData = dlmread(likelihoodMapFileLocation);
 
 % No. of Particles
-numParticles = 100;
+numParticles = 500;
 
 % Storing X, Y, theta and Weight of particles
 particles = zeros(numParticles, 4);
@@ -28,11 +29,11 @@ currentRobotY = 72;
 currentRobotTheta = 0;
 
 % Initialize a scatter plot with the first set of data points
-%figure;
-%scatter(particles(:, 1), particles(:, 2)); % Plot x vs y
-%title('Scatter Plot');
-%xlabel('X');
-%ylabel('Y');
+figure;
+scatter(particles(:, 1), particles(:, 2)); % Plot x vs y
+title('Scatter Plot');
+xlabel('X');
+ylabel('Y');
 
 for i = 1:size(robotData, 1)
     if robotData(i, 1) == 0
@@ -55,7 +56,8 @@ for i = 1:size(robotData, 1)
         robotPose = [robotPose; [currentRobotX, currentRobotY, currentRobotTheta]];
 
         for j = 1:numParticles
-            particles(j, 4) = FunctionSensorModelBeamBasedModel(robotData(i, 5:7), mapData, robotData(i, 8:187));
+            %particles(j, 4) = FunctionSensorModelBeamBasedModel(robotData(i, 5:7), mapData, robotData(i, 8:187));
+            particles(j, 4) = FunctionSensorModelBeamBasedModel(robotData(i, 5:7), likelihoodMapData, robotData(i, 8:187));
         end
 
         % Propagating the particles using the odometry model
@@ -67,17 +69,18 @@ for i = 1:size(robotData, 1)
 
     end
     
-    particles = FunctionLowVarianceResample(particles);
-    %x = particles(:, 1);
-    %y = particles(:, 2);
+    x = particles(:, 1);
+    y = particles(:, 2);
     
     % Update the scatter plot with new x, y coordinates
-    %scatter(x, y, 'r', 'filled'); % Plot the current point in red
+    scatter(x, y, 'r', 'filled'); % Plot the current point in red
     
     % Update title to show the iteration number
-    %title(['Scatter Plot - Iteration ', num2str(i)]);
+    title(['Scatter Plot - Iteration ', num2str(i)]);
 
-    %pause(0.1);
+    pause(0.1);
+
+    particles = FunctionLowVarianceResample(particles);
     
 end
 
