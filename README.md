@@ -1,4 +1,5 @@
-## Robot Localization Using Particle Filter
+## Robot-Localization-Using-Particle-Filter
+
 <ul>
   <li>Implemented a Particle Filter algorithm to estimate the position of a mobile robot in an unknown environment using noisy sensor data and motion models.</li>
   <li>Designed and simulated a probabilistic framework to handle uncertainty in both robot movement and sensor observations, enabling robust localization over time.</li>
